@@ -16,7 +16,6 @@ public class SimpleWallBuilder : IWallBuilder
     public void Build(Wall wall)
     {
         this.body = MonoBehaviour.Instantiate(this.wallPrefab, wall.transform);
-        this.body.transform.localScale = new Vector3(1, 1, wall.Line.magnitude);
     }
 
     public void Destroy()
