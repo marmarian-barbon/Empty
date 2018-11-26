@@ -31,8 +31,13 @@ public class Suppressor : MonoBehaviour
         var result = new GameObject().AddComponent<Suppressor>();
         result.Height = height;
         result.transform.position = position + (result.transform.up * result.Height);
-        result.transform.localScale.Scale(new Vector3(1f, result.Height, 1f));
+
+        // Почему вот это работает,
         result.transform.localScale = new Vector3(1f, result.Height, 1f);
+
+        // а вот это нет?
+        result.transform.localScale.Scale(new Vector3(1f, result.Height, 1f));
+
         result.towerBuilder = towerBuilder;
         result.towerBuilder.Build(result);
         return result;
