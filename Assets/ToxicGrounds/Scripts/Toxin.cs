@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-public class Toxine : MonoBehaviour
+public class Toxin : MonoBehaviour
 {
     private IEnumerator currentCoroutine;
 
@@ -21,9 +21,9 @@ public class Toxine : MonoBehaviour
         }
     }
 
-    public static Toxine Constructor(GameObject prefab, Vector3 position)
+    public static Toxin Constructor(GameObject prefab, Vector3 position)
     {
-        var result = MonoBehaviour.Instantiate(prefab, position, Quaternion.identity).AddComponent<Toxine>();
+        var result = MonoBehaviour.Instantiate(prefab, position, Quaternion.identity).AddComponent<Toxin>();
         return result;
     }
 }

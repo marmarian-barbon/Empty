@@ -11,17 +11,13 @@ public class Path : ICloneable
 
     private Patrol patrol;
 
-    private IList<Suppressor> towers;
-
-    private IList<Wall> walls;
-
     public Path(Patrol patrol)
     {
         this.soldier = patrol.Soldier;
         this.patrol = patrol;
-        this.towers = new List<Suppressor>();
+        this.Towers = new List<Suppressor>();
         var currentWatch = patrol.Soldier.CurrentWatch;
-        this.walls = new List<Wall> { currentWatch.Wall };
+        this.Walls = new List<Wall> { currentWatch.Wall };
         this.Distance = 0f;
 
         var currentPosition = this.soldier.transform.position;
@@ -69,8 +65,8 @@ public class Path : ICloneable
         }
 
         var closest = newPaths.OrderBy(path => path.Distance).First();
-        this.towers = closest.towers;
-        this.walls = closest.walls;
+        this.Towers = closest.Towers;
+        this.Walls = closest.Walls;
         this.Distance = closest.Distance;
     }
 
@@ -78,11 +74,15 @@ public class Path : ICloneable
     {
     }
 
+    public IList<Suppressor> Towers { get; private set; }
+
+    public IList<Wall> Walls { get; private set; }
+
     public float Distance { get; private set; }
 
     public IEnumerator Move()
     {
-        foreach (var nextTower in this.towers)
+        foreach (var nextTower in this.Towers)
         {
             for (var currentPosition = this.soldier.transform.position;
                  Vector3.Distance(currentPosition, nextTower.Waypoint) > Vector3.kEpsilon;
@@ -100,17 +100,17 @@ public class Path : ICloneable
     public object Clone()
     {
         var newTowers = new List<Suppressor>();
-        newTowers.AddRange(this.towers);
+        newTowers.AddRange(this.Towers);
 
         var newWalls = new List<Wall>();
-        newWalls.AddRange(this.walls);
+        newWalls.AddRange(this.Walls);
 
         return new Path()
         {
             soldier = this.soldier,
             patrol = this.patrol,
-            towers = newTowers,
-            walls = newWalls,
+            Towers = newTowers,
+            Walls = newWalls,
             Distance = this.Distance
         };
     }
@@ -125,7 +125,7 @@ public class Path : ICloneable
         var result = new List<Path>();
         foreach (var wall in tower.ConnectedWalls)
         {
-            var alreadyInPath = this.walls.Contains(wall);
+            var alreadyInPath = this.Walls.Contains(wall);
             if (alreadyInPath)
             {
                 continue;
@@ -137,8 +137,8 @@ public class Path : ICloneable
                 continue;
             }
 
-            newPath.towers.Add(tower);
-            newPath.walls.Add(wall);
+            newPath.Towers.Add(tower);
+            newPath.Walls.Add(wall);
             newPath.Distance += wall.Line.magnitude;
 
             var wallWatch = this.patrol.Watches.FirstOrDefault(watch => watch.Wall == wall);
@@ -156,7 +156,7 @@ public class Path : ICloneable
             }
 
             var nextTower = wall.Towers.FirstOrDefault(suppressor => suppressor != tower);
-            if (nextTower == null || newPath.towers.Contains(nextTower))
+            if (nextTower == null || newPath.Towers.Contains(nextTower))
             {
                 continue;
             }

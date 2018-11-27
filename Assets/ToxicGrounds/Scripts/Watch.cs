@@ -10,7 +10,7 @@ public class Watch : MonoBehaviour
     /// <summary>
     /// Оптимальная позиция на <see cref="Wall"/> для стрельбы <see cref="Soldier"/>.
     /// </summary>
-    public IDictionary<Toxine, Vector3> FirePosition { get; private set; }
+    public IDictionary<Toxin, Vector3> FirePosition { get; private set; }
 
     /// <summary>
     /// <see cref="Wall"/>, за которой идет наблюдение.
@@ -25,12 +25,13 @@ public class Watch : MonoBehaviour
     public static Watch Constructor(Wall wall, Soldier soldier)
     {
         var result = new GameObject().AddComponent<Watch>();
-        result.FirePosition = new Dictionary<Toxine, Vector3>();
+        result.FirePosition = new Dictionary<Toxin, Vector3>();
         result.transform.position = wall.transform.position;
         result.transform.rotation = wall.transform.rotation;
         result.transform.parent = wall.transform;
         result.Wall = wall;
         result.Soldier = soldier;
+        //var renderer = result.gameObject.AddComponent<>()
         var collider = result.gameObject.AddComponent<CapsuleCollider>();
         collider.direction = 2;
         collider.isTrigger = true;
@@ -44,7 +45,7 @@ public class Watch : MonoBehaviour
     /// Расчитывает Оптимальную позицию на <seealso cref="Wall"/> для стрельбы по <seealso cref="enemy"/>.
     /// </summary>
     /// <returns></returns>
-    private Vector3 OptimalPosition(Toxine enemy)
+    private Vector3 OptimalPosition(Toxin enemy)
     {
         var towers = this.Wall.Towers;
         var tower0ToTarget = enemy.transform.position - this.Wall.Towers[0].Waypoint;
@@ -69,7 +70,7 @@ public class Watch : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        var toxine = other.gameObject.GetComponent<Toxine>();
+        var toxine = other.gameObject.GetComponent<Toxin>();
         if (toxine == null)
         {
             return;
@@ -82,7 +83,7 @@ public class Watch : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        var toxine = other.gameObject.GetComponent<Toxine>();
+        var toxine = other.gameObject.GetComponent<Toxin>();
         if (toxine == null)
         {
             return;
@@ -94,7 +95,7 @@ public class Watch : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        var toxine = other.gameObject.GetComponent<Toxine>();
+        var toxine = other.gameObject.GetComponent<Toxin>();
         if (toxine == null)
         {
             return;
