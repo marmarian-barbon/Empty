@@ -7,26 +7,120 @@ using UnityEngine;
 
 public class Path : ICloneable
 {
+    private Soldier soldier;
+
+    private Patrol patrol;
+
     private IList<Suppressor> towers;
 
     private IList<Wall> walls;
 
-    private Patrol patrol;
-
     public Path(Patrol patrol)
     {
+        this.soldier = patrol.Soldier;
         this.patrol = patrol;
         this.towers = new List<Suppressor>();
-        this.walls = new List<Wall> { patrol.Soldier.CurrentWatch.Wall };
+        var currentWatch = patrol.Soldier.CurrentWatch;
+        this.walls = new List<Wall> { currentWatch.Wall };
+        this.Distance = 0f;
+
+        var currentPosition = this.soldier.transform.position;
+        var newPaths = new List<Path>();
+        foreach (var tower in currentWatch.Wall.Towers)
+        {
+            var fromSoldierToTower = Vector3.Distance(currentPosition, tower.Waypoint) + Vector3.kEpsilon;
+            var fromFirePositionToTower = float.MaxValue;
+            foreach (var firePosition in currentWatch.FirePosition)
+            {
+                var fromAnotherFirePositionToTower = Vector3.Distance(firePosition.Value, tower.Waypoint);
+                if (fromAnotherFirePositionToTower < fromSoldierToTower && fromAnotherFirePositionToTower > fromFirePositionToTower)
+                {
+                    fromFirePositionToTower = fromAnotherFirePositionToTower;
+                }
+            }
+
+            if (fromFirePositionToTower < fromSoldierToTower)
+            {
+                var newPath = this.Clone() as Path;
+                if (newPath == null)
+                {
+                    throw new Exception();
+                }
+
+                newPath.Distance += fromSoldierToTower - fromFirePositionToTower;
+                newPaths.Add(newPath);
+            }
+            else
+            {
+                var newPath = this.Clone() as Path;
+                if (newPath == null)
+                {
+                    throw new Exception();
+                }
+
+                newPath.Distance += fromSoldierToTower;
+                newPaths.AddRange(newPath.Add(tower));
+            }
+        }
+
+        if (newPaths.Count <= 0)
+        {
+            return;
+        }
+
+        var closest = newPaths.OrderBy(path => path.Distance).First();
+        this.towers = closest.towers;
+        this.walls = closest.walls;
+        this.Distance = closest.Distance;
     }
 
+    private Path()
+    {
+    }
+
+    public float Distance { get; private set; }
+
+    public IEnumerator Move()
+    {
+        foreach (var nextTower in this.towers)
+        {
+            for (var currentPosition = this.soldier.transform.position;
+                 Vector3.Distance(currentPosition, nextTower.Waypoint) > Vector3.kEpsilon;
+                 this.soldier.transform.position = currentPosition)
+            {
+                currentPosition = Vector3.MoveTowards(
+                    currentPosition,
+                    nextTower.Waypoint,
+                    Time.deltaTime * this.soldier.Speed);
+                yield return new WaitForEndOfFrame();
+            }
+        }
+    }
+
+    public object Clone()
+    {
+        var newTowers = new List<Suppressor>();
+        newTowers.AddRange(this.towers);
+
+        var newWalls = new List<Wall>();
+        newWalls.AddRange(this.walls);
+
+        return new Path()
+        {
+            soldier = this.soldier,
+            patrol = this.patrol,
+            towers = newTowers,
+            walls = newWalls,
+            Distance = this.Distance
+        };
+    }
 
     /// <summary>
     /// Возвращает возможные пути, которые могли бы получиться при добавлении новой <seealso cref="tower"/>.
     /// </summary>
     /// <param name="tower"></param>
     /// <returns></returns>
-    private List<Path> AddTower(Suppressor tower)
+    private List<Path> Add(Suppressor tower)
     {
         var result = new List<Path>();
         foreach (var wall in tower.ConnectedWalls)
@@ -54,7 +148,7 @@ public class Path : ICloneable
                 if (haveTarget)
                 {
                     var nearestDistance = wallWatch.FirePosition.Select(position => Vector3.Distance(tower.Waypoint, position.Value)).Concat(new[] { float.MaxValue }).Min();
-                    
+
                     newPath.Distance += nearestDistance;
                     result.Add(newPath);
                     continue;
@@ -62,78 +156,15 @@ public class Path : ICloneable
             }
 
             var nextTower = wall.Towers.FirstOrDefault(suppressor => suppressor != tower);
-            if (nextTower == null)
+            if (nextTower == null || newPath.towers.Contains(nextTower))
             {
                 continue;
             }
 
-            var newPaths = newPath.AddTower(nextTower);
+            var newPaths = newPath.Add(nextTower);
             result.AddRange(newPaths);
         }
 
         return result;
-    }
-
-    public Path(Vector3 currentPosition, Suppressor firstTower)
-    {
-        this.Distance = Vector3.Distance(currentPosition, firstTower.Waypoint);
-        this.towers = new List<Suppressor> { firstTower };
-    }
-
-    private Path()
-    {
-    }
-
-    public float Distance { get; private set; }
-
-    public bool TryAdd(Suppressor nextTower)
-    {
-        if (this.towers.Contains(nextTower))
-        {
-            return false;
-        }
-
-        var last = this.towers.Last();
-        var connected = false;
-        foreach (var wall in last.ConnectedWalls)
-        {
-            if (wall.Towers.Any(tower => tower == nextTower))
-            {
-                connected = true;
-            }
-        }
-
-        if (!connected)
-        {
-            return false;
-        }
-
-        this.Distance += Vector3.Distance(last.Waypoint, nextTower.Waypoint);
-        this.towers.Add(nextTower);
-        return true;
-    }
-
-    public IEnumerator GoNext(Soldier soldier)
-    {
-        foreach (var nextTower in this.towers)
-        {
-            for (var currentPosition = soldier.transform.position;
-                 Vector3.Distance(currentPosition, nextTower.Waypoint) > Vector3.kEpsilon;
-                 soldier.transform.position = currentPosition)
-            {
-                currentPosition = Vector3.MoveTowards(
-                    currentPosition,
-                    nextTower.Waypoint,
-                    Time.deltaTime * soldier.Speed);
-                yield return new WaitForEndOfFrame();
-            }
-        }
-    }
-
-    public object Clone()
-    {
-        var newList = new List<Suppressor>();
-        newList.AddRange(this.towers);
-        return new Path() { Distance = this.Distance, towers = newList };
     }
 }
