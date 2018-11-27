@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.XR.WSA.Persistence;
 
 /// <summary>
@@ -13,7 +14,26 @@ public class Wall : MonoBehaviour
 {
     private IWallBuilder wallBuilder;
 
-    private IList<Suppressor> towers;
+    public IEnumerable<Suppressor> towers;
+
+    /// <summary>
+    /// Две <see cref="Suppressor"/>, которые соединяет эта <see cref="Wall"/>.
+    /// </summary>
+    public IEnumerable<Suppressor> Towers
+    {
+        get
+        {
+            return this.towers.ToArray();
+        }
+
+        private set
+        {
+            if (value.Count() == 2)
+            {
+                this.towers = value;
+            }
+        }
+    }
 
     /// <summary>
     /// Высота стены.
@@ -35,11 +55,16 @@ public class Wall : MonoBehaviour
     public static Wall Constructor(Suppressor tower1, Suppressor tower2, IWallBuilder wallBuilder)
     {
         var result = new GameObject().AddComponent<Wall>();
+        tower1.ConnectedWalls.Add(result);
+        tower2.ConnectedWalls.Add(result);
+        result.Towers = new[] { tower1, tower2 };
         result.Height = (tower1.Height + tower2.Height) / 2f;
         result.transform.position = (tower1.transform.position + tower2.transform.position) / 2f;
         result.Line = tower1.transform.position - tower2.transform.position;
         result.transform.rotation = Quaternion.LookRotation(result.Line);
-        result.transform.localScale = new Vector3(1f, result.Height * 2, result.Line.magnitude);
+        var scale = result.transform.localScale;
+        scale.Scale(new Vector3(1f, result.Height * 2, result.Line.magnitude));
+        result.transform.localScale = scale;
         result.wallBuilder = wallBuilder;
         result.wallBuilder.Build(result);
         return result;

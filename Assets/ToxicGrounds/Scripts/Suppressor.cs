@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using UnityEngine;
 
@@ -19,6 +20,8 @@ public class Suppressor : MonoBehaviour
     /// </summary>
     public Vector3 Waypoint { get; private set; }
 
+    public ICollection<Wall> ConnectedWalls { get; private set; }
+
     /// <summary>
     /// Конструктор.
     /// </summary>
@@ -31,15 +34,13 @@ public class Suppressor : MonoBehaviour
         var result = new GameObject().AddComponent<Suppressor>();
         result.Height = height;
         result.transform.position = position + (result.transform.up * result.Height);
-
-        // Почему вот это работает,
-        result.transform.localScale = new Vector3(1f, result.Height, 1f);
-
-        // а вот это нет?
-        result.transform.localScale.Scale(new Vector3(1f, result.Height, 1f));
-
+        result.Waypoint = result.transform.position + (result.transform.up * result.Height);
+        var scale = result.transform.localScale;
+        scale.Scale(new Vector3(1f, result.Height, 1f));
+        result.transform.localScale = scale;
         result.towerBuilder = towerBuilder;
         result.towerBuilder.Build(result);
+        result.ConnectedWalls = new List<Wall>();
         return result;
     }
 }
