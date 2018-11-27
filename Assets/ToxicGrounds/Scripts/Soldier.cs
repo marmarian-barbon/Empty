@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+
+using UnityEngine;
 
 /// <summary>
 /// Солдат, который будет убивать врагов в зоне действия его <see cref="Patrol"/>.
@@ -21,5 +23,13 @@ public class Soldier : MonoBehaviour
         result.Range = range;
         result.transform.position = tower.Waypoint;
         return result;
+    }
+
+    /// <summary>
+    /// Заставляет посмотреть, нет ли другой цели для атаки
+    /// </summary>
+    public void ReTarget()
+    {
+        // TODO логику
     }
 }

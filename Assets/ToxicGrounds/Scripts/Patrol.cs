@@ -11,7 +11,7 @@ public class Patrol
     public Patrol(Soldier soldier, Wall wall)
     {
         this.Soldier = soldier;
-        this.Watches = new HashSet<Watch> { Watch.Constructor(wall, this.Soldier.Range) };
+        this.Watches = new HashSet<Watch> { Watch.Constructor(wall, this.Soldier) };
         this.Towers = new HashSet<Suppressor>();
         foreach (var tower in wall.Towers)
         {
@@ -48,7 +48,7 @@ public class Patrol
             this.Towers.Add(tower);
         }
 
-        this.Watches.Add(Watch.Constructor(wall, this.Soldier.Range));
+        this.Watches.Add(Watch.Constructor(wall, this.Soldier));
         return true;
     }
 }

@@ -14,16 +14,16 @@ public class Wall : MonoBehaviour
 {
     private IWallBuilder wallBuilder;
 
-    public IEnumerable<Suppressor> towers;
+    public IReadOnlyList<Suppressor> towers;
 
     /// <summary>
     /// Две <see cref="Suppressor"/>, которые соединяет эта <see cref="Wall"/>.
     /// </summary>
-    public IEnumerable<Suppressor> Towers
+    public IReadOnlyList<Suppressor> Towers
     {
         get
         {
-            return this.towers.ToArray();
+            return this.towers.ToList();
         }
 
         private set
