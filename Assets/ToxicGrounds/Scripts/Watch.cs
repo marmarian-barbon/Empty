@@ -14,16 +14,14 @@ public class Watch : MonoBehaviour
     {
         var result = new GameObject().AddComponent<Watch>();
         result.transform.position = wall.transform.position;
+        result.transform.rotation = Quaternion.LookRotation(wall.transform.up, wall.Line);
         result.transform.parent = wall.transform;
         result.Wall = wall;
         var collider = result.gameObject.AddComponent<CapsuleCollider>();
         collider.isTrigger = true;
         collider.transform.parent = wall.transform;
-
-        // TODO допилить поворот на нужный угол
         collider.radius = range;
-        collider.height = wall.Line.magnitude;
-
+        collider.height = wall.Line.magnitude + (collider.radius * 2);
         return result;
     }
 }

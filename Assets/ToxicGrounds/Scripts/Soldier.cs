@@ -1,9 +1,18 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// Солдат, который будет убивать врагов в зоне действия его <see cref="Patrol"/>.
+/// </summary>
 public class Soldier : MonoBehaviour
 {
+    /// <summary>
+    /// Дальность стрельбы.
+    /// </summary>
     public float Range { get; private set; }
 
+    /// <summary>
+    /// <see cref="Wall"/>, на которой сейчас стоит.
+    /// </summary>
     public Wall CurrentWall { get; private set; }
 
     public static Soldier Constructor(GameObject prefab, float range, Suppressor tower)
