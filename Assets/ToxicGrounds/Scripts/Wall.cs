@@ -14,7 +14,7 @@ public class Wall : MonoBehaviour
 {
     private IWallBuilder wallBuilder;
 
-    public IReadOnlyList<Suppressor> towers;
+    private IReadOnlyList<Suppressor> towers;
 
     /// <summary>
     /// Две <see cref="Suppressor"/>, которые соединяет эта <see cref="Wall"/>.

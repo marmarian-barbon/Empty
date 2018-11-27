@@ -7,6 +7,8 @@ using UnityEngine;
 /// </summary>
 public class Soldier : MonoBehaviour
 {
+    public float Speed { get; private set; }
+
     /// <summary>
     /// Дальность стрельбы.
     /// </summary>
@@ -15,12 +17,13 @@ public class Soldier : MonoBehaviour
     /// <summary>
     /// <see cref="Wall"/>, на которой сейчас стоит.
     /// </summary>
-    public Wall CurrentWall { get; private set; }
+    public Watch CurrentWatch { get; private set; }
 
-    public static Soldier Constructor(GameObject prefab, float range, Suppressor tower)
+    public static Soldier Constructor(GameObject prefab, float range, float speed, Suppressor tower)
     {
         var result = MonoBehaviour.Instantiate(prefab).AddComponent<Soldier>();
         result.Range = range;
+        result.Speed = speed;
         result.transform.position = tower.Waypoint;
         return result;
     }

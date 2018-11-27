@@ -25,9 +25,9 @@ public class Watch : MonoBehaviour
     public static Watch Constructor(Wall wall, Soldier soldier)
     {
         var result = new GameObject().AddComponent<Watch>();
+        result.FirePosition = new Dictionary<Toxine, Vector3>();
         result.transform.position = wall.transform.position;
         result.transform.rotation = wall.transform.rotation;
-        //result.transform.rotation = Quaternion.LookRotation(wall.transform.up, wall.Line);
         result.transform.parent = wall.transform;
         result.Wall = wall;
         result.Soldier = soldier;
@@ -69,7 +69,6 @@ public class Watch : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Пришел");
         var toxine = other.gameObject.GetComponent<Toxine>();
         if (toxine == null)
         {
@@ -79,12 +78,10 @@ public class Watch : MonoBehaviour
         var optimalPosition = this.OptimalPosition(toxine);
         this.FirePosition.Add(toxine, optimalPosition);
         this.Soldier.ReTarget();
-        Debug.Log(this.FirePosition[toxine].ToString());
     }
 
     private void OnTriggerStay(Collider other)
     {
-        Debug.Log("Стоит");
         var toxine = other.gameObject.GetComponent<Toxine>();
         if (toxine == null)
         {
@@ -93,12 +90,10 @@ public class Watch : MonoBehaviour
 
         var optimalPosition = this.OptimalPosition(toxine);
         this.FirePosition[toxine] = optimalPosition;
-        Debug.Log(this.FirePosition[toxine].ToString());
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("Ушел");
         var toxine = other.gameObject.GetComponent<Toxine>();
         if (toxine == null)
         {
@@ -107,6 +102,5 @@ public class Watch : MonoBehaviour
 
         this.FirePosition.Remove(toxine);
         this.Soldier.ReTarget();
-        Debug.Log("Ушел");
     }
 }

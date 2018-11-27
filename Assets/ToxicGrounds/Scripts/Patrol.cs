@@ -11,7 +11,8 @@ public class Patrol
     public Patrol(Soldier soldier, Wall wall)
     {
         this.Soldier = soldier;
-        this.Watches = new HashSet<Watch> { Watch.Constructor(wall, this.Soldier) };
+        var firstWatch = Watch.Constructor(wall, this.Soldier);
+        this.Watches = new HashSet<Watch> { firstWatch };
         this.Towers = new HashSet<Suppressor>();
         foreach (var tower in wall.Towers)
         {
