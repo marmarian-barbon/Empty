@@ -11,32 +11,45 @@ public class Path : ICloneable
 
     private Patrol patrol;
 
+    /// <summary>
+    /// <see cref="Path"/> до любой ближайшей цели в этом <seealso cref="patrol"/>.
+    /// </summary>
+    /// <param name="patrol"></param>
     public Path(Patrol patrol)
     {
         this.soldier = patrol.Soldier;
         this.patrol = patrol;
         this.Towers = new List<Suppressor>();
-        var currentWatch = patrol.Soldier.CurrentWatch;
-        this.Walls = new List<Wall> { currentWatch.Wall };
+        var currentWall = patrol.Soldier.CurrentWall;
+        this.Walls = new List<Wall> { currentWall };
         this.Distance = 0f;
 
         var currentPosition = this.soldier.transform.position;
         var newPaths = new List<Path>();
-        foreach (var tower in currentWatch.Wall.Towers)
+        var currentWatch = this.patrol.WatchOf(currentWall);
+
+        foreach (var tower in currentWall.Towers)
         {
             var fromSoldierToTower = Vector3.Distance(currentPosition, tower.Waypoint) + Vector3.kEpsilon;
-            var fromFirePositionToTower = float.MaxValue;
-            foreach (var firePosition in currentWatch.FirePosition)
+            var fromFirePositionToTower = 0f;
+
+            // Watch вообще есть => изменится fromFirePositionToTower
+            if (currentWatch != null)
             {
-                var fromAnotherFirePositionToTower = Vector3.Distance(firePosition.Value, tower.Waypoint);
-                if (fromAnotherFirePositionToTower < fromSoldierToTower && fromAnotherFirePositionToTower > fromFirePositionToTower)
+                foreach (var firePosition in currentWatch.FirePosition)
                 {
-                    fromFirePositionToTower = fromAnotherFirePositionToTower;
+                    var fromAnotherFirePositionToTower = Vector3.Distance(firePosition.Value, tower.Waypoint);
+                    if (fromAnotherFirePositionToTower < fromSoldierToTower
+                        && fromAnotherFirePositionToTower > fromFirePositionToTower)
+                    {
+                        fromFirePositionToTower = fromAnotherFirePositionToTower;
+                    }
                 }
             }
-
-            if (fromFirePositionToTower < fromSoldierToTower)
+            
+            if (!Mathf.Approximately(fromFirePositionToTower, 0f) && fromFirePositionToTower < fromSoldierToTower)
             {
+                // fromFirePositionToTower стал меньше, чем fromSoldierToTower => Watch есть и вообще стоит прекратить поиск в том направлении
                 var newPath = this.Clone() as Path;
                 if (newPath == null)
                 {
@@ -48,6 +61,7 @@ public class Path : ICloneable
             }
             else
             {
+                // не стал => ищем дальше
                 var newPath = this.Clone() as Path;
                 if (newPath == null)
                 {
@@ -58,6 +72,7 @@ public class Path : ICloneable
                 newPaths.AddRange(newPath.Add(tower));
             }
         }
+
 
         if (newPaths.Count <= 0)
         {
@@ -79,23 +94,6 @@ public class Path : ICloneable
     public IList<Wall> Walls { get; private set; }
 
     public float Distance { get; private set; }
-
-    public IEnumerator Move()
-    {
-        foreach (var nextTower in this.Towers)
-        {
-            for (var currentPosition = this.soldier.transform.position;
-                 Vector3.Distance(currentPosition, nextTower.Waypoint) > Vector3.kEpsilon;
-                 this.soldier.transform.position = currentPosition)
-            {
-                currentPosition = Vector3.MoveTowards(
-                    currentPosition,
-                    nextTower.Waypoint,
-                    Time.deltaTime * this.soldier.Speed);
-                yield return new WaitForEndOfFrame();
-            }
-        }
-    }
 
     public object Clone()
     {

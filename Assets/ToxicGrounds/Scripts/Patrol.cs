@@ -26,6 +26,11 @@ public class Patrol
 
     public Soldier Soldier { get; }
 
+    public Watch WatchOf(Wall wall)
+    {
+        return this.Watches.FirstOrDefault(watch => watch.Wall == wall);
+    }
+
     /// <summary>
     /// Пытается присоединить новый кусок территории.
     /// </summary>

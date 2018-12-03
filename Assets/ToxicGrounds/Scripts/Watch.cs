@@ -31,7 +31,6 @@ public class Watch : MonoBehaviour
         result.transform.parent = wall.transform;
         result.Wall = wall;
         result.Soldier = soldier;
-        //var renderer = result.gameObject.AddComponent<>()
         var collider = result.gameObject.AddComponent<CapsuleCollider>();
         collider.direction = 2;
         collider.isTrigger = true;
