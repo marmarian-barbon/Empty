@@ -31,7 +31,7 @@ public class Path : ICloneable
         foreach (var tower in currentWall.Towers)
         {
             var fromSoldierToTower = Vector3.Distance(currentPosition, tower.Waypoint) + Vector3.kEpsilon;
-            var fromFirePositionToTower = 0f;
+            var fromFirePositionToTower = float.MinValue;
 
             // Watch вообще есть => изменится fromFirePositionToTower
             if (currentWatch != null)
@@ -47,7 +47,7 @@ public class Path : ICloneable
                 }
             }
             
-            if (!Mathf.Approximately(fromFirePositionToTower, 0f) && fromFirePositionToTower < fromSoldierToTower)
+            if (fromFirePositionToTower > 0f && fromFirePositionToTower < fromSoldierToTower)
             {
                 // fromFirePositionToTower стал меньше, чем fromSoldierToTower => Watch есть и вообще стоит прекратить поиск в том направлении
                 var newPath = this.Clone() as Path;
