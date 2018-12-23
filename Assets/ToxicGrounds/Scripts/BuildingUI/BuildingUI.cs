@@ -2,15 +2,14 @@
 
 public class BuildingUI : MonoBehaviour
 {
-    public GameObject CanvasPrefab { get; private set; }
-
-    public IBuildingUIState State { get; private set; }
+    public IBuildingUIState State { get; private set; } = new BuildingUIFree(null);
 
     public static BuildingUI Constructor(GameObject canvasPrefab)
     {
         var result = MonoBehaviour.Instantiate(canvasPrefab).AddComponent<BuildingUI>();
-        result.CanvasPrefab = canvasPrefab;
+
         result.State = new BuildingUIFree(result);
+        result.GetComponent<Canvas>().worldCamera = Camera.main;
         return result;
     }
 
@@ -19,14 +18,18 @@ public class BuildingUI : MonoBehaviour
     /// </summary>
     public void TowerButton()
     {
-        switch (this.State)
+        if (this.State is BuildingUIFree)
         {
-            case BuildingUIFree _:
-                this.State = new BuildingUITowerPlacing(this);
-                return;
-            case BuildingUITowerPlacing placing:
-                this.State = placing.Cancel();
-                return;
+            Debug.Log("Place Tower");
+            this.State = new BuildingUITowerPlacing(this);
+            return;
+        }
+        else if (this.State is BuildingUITowerPlacing)
+        {
+            Debug.Log("Do not Place Tower");
+            var placing = this.State as BuildingUITowerPlacing;
+            this.State = placing.Cancel();
+            return;
         }
     }
 
@@ -35,17 +38,22 @@ public class BuildingUI : MonoBehaviour
     /// </summary>
     public void WallButton()
     {
-        switch (this.State)
+        if (this.State is BuildingUIFree)
         {
-            case BuildingUIFree _:
-                this.State = new BuildingUIWallPlacing(this);
-                return;
-            case BuildingUIWallPlacing placing:
-                this.State = placing.Cancel();
-                return;
-            case BuildingUIWallTowerSelected towerSelected:
-                this.State = towerSelected.Cancel().Cancel();
-                return;
+            this.State = new BuildingUIWallPlacing(this);
+            return;
+        }
+        else if (this.State is BuildingUIWallPlacing)
+        {
+            var placing = this.State as BuildingUIWallPlacing;
+            this.State = placing.Cancel();
+            return;
+        }
+        else if (this.State is BuildingUIWallTowerSelected)
+        {
+            var towerSelected = this.State as BuildingUIWallTowerSelected;
+            this.State = towerSelected.Cancel().Cancel();
+            return;
         }
     }
 

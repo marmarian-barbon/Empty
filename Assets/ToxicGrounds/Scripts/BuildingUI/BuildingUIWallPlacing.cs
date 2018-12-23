@@ -1,4 +1,7 @@
-﻿public class BuildingUIWallPlacing : IBuildingUIState
+﻿using UnityEngine;
+using UnityEngine.EventSystems;
+
+public class BuildingUIWallPlacing : IBuildingUIState
 {
     public BuildingUIWallPlacing(BuildingUI buildingUi)
     {
@@ -9,7 +12,29 @@
 
     public IBuildingUIState Update()
     {
-        // TODO выбор первой башни
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+                return this;
+            }
+
+            var layers = LayerMask.GetMask("TowersOnly");
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            var hit = default(RaycastHit);
+            var isHit = Physics.Raycast(ray, out hit, float.MaxValue, layers);
+            if (isHit)
+            {
+                var tower = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Suppressor>();
+                Debug.Log(tower.Waypoint.ToString());
+                Debug.Log("Found first tower" + tower.transform.position.ToString());
+                return new BuildingUIWallTowerSelected(this.BuildingUi, tower);
+            }
+            else
+            {
+                return this;
+            }
+        }
         return this;
     }
 

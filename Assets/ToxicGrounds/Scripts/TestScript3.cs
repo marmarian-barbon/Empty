@@ -21,6 +21,9 @@ public class TestScript3 : MonoBehaviour
     [SerializeField]
     private GameObject toxin;
 
+    [SerializeField]
+    private GameObject mainPlane;
+
     private static IEnumerator SmoothMovement(Vector3 end, Component toxin)
     {
         var sqrRemainingDistance = (toxin.transform.position - end).sqrMagnitude;
@@ -36,6 +39,10 @@ public class TestScript3 : MonoBehaviour
 
     private void Start()
     {
+        WorldComponents.MainPlane = this.mainPlane;
+        WorldComponents.TowerPrefab = this.towerPrefab;
+        WorldComponents.WallPrefab = this.wallPrefab;
+
         var tower0 = Suppressor.Constructor(new Vector3(0f, 0f, 6f), new SimpleTowerBuilder(this.towerPrefab), 2f);
         var tower1 = Suppressor.Constructor(new Vector3(6f, 0f, -4f), new SimpleTowerBuilder(this.towerPrefab), 2f);
         var tower2 = Suppressor.Constructor(new Vector3(-6f, 0f, -4f), new SimpleTowerBuilder(this.towerPrefab), 2f);
