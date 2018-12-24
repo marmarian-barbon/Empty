@@ -13,4 +13,6 @@ public static class WorldComponents
     public static GameObject TowerPrefab;
 
     public static GameObject WallPrefab;
+
+    public static GameObject SoldierPrefab;
 }

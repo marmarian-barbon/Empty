@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class BuildingUIWallTowerSelected : IBuildingUIState
@@ -22,15 +24,16 @@ public class BuildingUIWallTowerSelected : IBuildingUIState
                 return this;
             }
 
-            var layers = LayerMask.GetMask("TowersOnly");
+            var layers = LayerMask.GetMask("Towers");
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             var hit = default(RaycastHit);
-            var isHit = Physics.Raycast(ray, out hit, layers);
+            var isHit = Physics.Raycast(ray, out hit, Single.MaxValue, layers);
             if (isHit)
             {
+                var tower = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Suppressor>();
                 var newWall = Wall.Constructor(
                     this.firstTower,
-                    hit.collider.gameObject.transform.parent.gameObject.GetComponent<Suppressor>(),
+                    tower,
                     new SimpleWallBuilder(WorldComponents.WallPrefab));
 
                 return new BuildingUIFree(this.BuildingUi);

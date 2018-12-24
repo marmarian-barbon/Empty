@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class BuildingUI : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class BuildingUI : MonoBehaviour
     /// <summary>
     /// Когда нажали кнопку для строительства <see cref="Suppressor"/>.
     /// </summary>
-    public void TowerButton()
+    public void TowerButton(Button sender)
     {
         if (this.State is BuildingUIFree)
         {
@@ -31,12 +32,14 @@ public class BuildingUI : MonoBehaviour
             this.State = placing.Cancel();
             return;
         }
+
+        this.State = this.State.Cancel();
     }
 
     /// <summary>
     /// Когда нажали кнопку для строительства <see cref="Wall"/>.
     /// </summary>
-    public void WallButton()
+    public void WallButton(Button sender)
     {
         if (this.State is BuildingUIFree)
         {
@@ -55,18 +58,43 @@ public class BuildingUI : MonoBehaviour
             this.State = towerSelected.Cancel().Cancel();
             return;
         }
+
+        this.State = this.State.Cancel();
     }
 
     /// <summary>
     /// Когда нажали кнопку выставления солдата <see cref="Soldier"/>
     /// </summary>
-    public void SoldierButton()
+    public void SoldierButton(Button sender)
     {
-        // TODO
+        if (this.State is BuildingUIFree)
+        {
+            this.State = new BuildingUISoldierPlacing(this);
+            return;
+        }
+        else if (this.State is BuildingUISoldierPlacing)
+        {
+            var placing = this.State as BuildingUISoldierPlacing;
+            this.State = placing.Cancel();
+            return;
+        }
+        else if (this.State is BuildingUIPatrolPlacing)
+        {
+            this.State = this.State.Cancel();
+            return;
+        }
+
+        this.State = this.State.Cancel();
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            this.State = this.State.Cancel();
+            return;
+        }
+
         this.State = this.State.Update();
     }
 }

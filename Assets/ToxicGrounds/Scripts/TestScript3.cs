@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -37,11 +38,20 @@ public class TestScript3 : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("yes");
+        }
+    }
+
     private void Start()
     {
         WorldComponents.MainPlane = this.mainPlane;
         WorldComponents.TowerPrefab = this.towerPrefab;
         WorldComponents.WallPrefab = this.wallPrefab;
+        WorldComponents.SoldierPrefab = this.soldierPrefab;
 
         var tower0 = Suppressor.Constructor(new Vector3(0f, 0f, 6f), new SimpleTowerBuilder(this.towerPrefab), 2f);
         var tower1 = Suppressor.Constructor(new Vector3(6f, 0f, -4f), new SimpleTowerBuilder(this.towerPrefab), 2f);
@@ -51,7 +61,7 @@ public class TestScript3 : MonoBehaviour
         var wall12 = Wall.Constructor(tower1, tower2, new SimpleWallBuilder(this.wallPrefab));
         var wall20 = Wall.Constructor(tower2, tower0, new SimpleWallBuilder(this.wallPrefab));
 
-        var soldier = Soldier.Constructor(this.soldierPrefab, 5f, 5f, tower0);
+        var soldier = Soldier.Constructor(this.soldierPrefab, 15f, 10f, tower0);
         var patrol = soldier.SetPatrol(wall01);
         Debug.Log($"Другая стена добавлена в партулируемую территорию: {patrol.Add(wall12)}");
         var toxin0 = Toxin.Constructor(this.toxin, new Vector3(0f, 10f, 6f));

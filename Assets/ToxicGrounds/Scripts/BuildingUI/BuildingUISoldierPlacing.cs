@@ -1,11 +1,9 @@
-﻿using System;
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class BuildingUITowerPlacing : IBuildingUIState
+public class BuildingUISoldierPlacing : IBuildingUIState
 {
-    public BuildingUITowerPlacing(BuildingUI buildingUi)
+    public BuildingUISoldierPlacing(BuildingUI buildingUi)
     {
         this.BuildingUi = buildingUi;
     }
@@ -21,19 +19,20 @@ public class BuildingUITowerPlacing : IBuildingUIState
                 return this;
             }
 
-            var layers = LayerMask.GetMask("Floor");
+            var layers = LayerMask.GetMask("Towers");
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             var hit = default(RaycastHit);
             var isHit = Physics.Raycast(ray, out hit, float.MaxValue, layers);
             if (isHit)
             {
                 Debug.Log("Hit!");
-                var newTower = Suppressor.Constructor(
-                    hit.point,
-                    new SimpleTowerBuilder(WorldComponents.TowerPrefab),
-                    2f);
+                var soldier = Soldier.Constructor(
+                    WorldComponents.SoldierPrefab,
+                    15f,
+                    10f,
+                    hit.collider.gameObject.transform.parent.gameObject.GetComponent<Suppressor>());
 
-                return new BuildingUIFree(this.BuildingUi);
+                return new BuildingUIPatrolPlacing(soldier, this.BuildingUi);
             }
             else
             {
@@ -49,3 +48,4 @@ public class BuildingUITowerPlacing : IBuildingUIState
         return new BuildingUIFree(this.BuildingUi);
     }
 }
+
