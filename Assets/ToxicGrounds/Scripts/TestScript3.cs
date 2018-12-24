@@ -27,6 +27,9 @@ public class TestScript3 : MonoBehaviour
     [SerializeField]
     private GameObject mainPlane;
 
+    [SerializeField]
+    private GameObject testPrefab;
+
     private static IEnumerator SmoothMovement(Vector3 end, Component toxin)
     {
         var sqrRemainingDistance = (toxin.transform.position - end).sqrMagnitude;
@@ -66,13 +69,13 @@ public class TestScript3 : MonoBehaviour
         WorldComponents.WallPrefab = this.wallPrefab;
         WorldComponents.SoldierPrefab = this.soldierPrefab;
 
-        var tower0 = Suppressor.Constructor(new Vector3(-15f, 0f, 15f), new SimpleTowerBuilder(this.towerPrefab), 2f);
-        var tower1 = Suppressor.Constructor(new Vector3(15f, 0f, -15f), new SimpleTowerBuilder(this.towerPrefab), 2f);
+        var tower0 = Suppressor.Constructor(new Vector3(-5f, 0f, 5f), new SimpleTowerBuilder(this.towerPrefab), 2f);
+        var tower1 = Suppressor.Constructor(new Vector3(5f, 0f, -5f), new SimpleTowerBuilder(this.towerPrefab), 2f);
        
 
         var wall01 = Wall.Constructor(tower0, tower1, new SimpleWallBuilder(this.wallPrefab));
 
-        var soldier = Soldier.Constructor(this.soldierPrefab, 9f, 10f, tower0);
+        var soldier = Soldier.Constructor(this.soldierPrefab, 9f, 5f, tower0);
         var patrol = soldier.SetPatrol(wall01);
 
         this.StartCoroutine(this.GenerateToxins(5f));

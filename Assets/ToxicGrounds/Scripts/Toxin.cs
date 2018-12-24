@@ -92,6 +92,9 @@ public class Toxin : MonoBehaviour
 
     private IEnumerator Move(Vector3 to)
     {
+        var newRotation = this.transform.rotation;
+        newRotation.SetLookRotation(to - this.transform.position, Vector3.up);
+        this.transform.rotation = newRotation;
         do
         {
             this.transform.position = Vector3.MoveTowards(this.transform.position, to, Time.deltaTime * 3f);

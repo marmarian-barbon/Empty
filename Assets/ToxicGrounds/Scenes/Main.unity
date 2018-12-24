@@ -373,7 +373,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: T
+  m_Text: Tower
 --- !u!222 &311600091
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -628,7 +628,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: W
+  m_Text: Wall
 --- !u!222 &707959703
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1118,10 +1118,11 @@ MonoBehaviour:
   wallPrefab: {fileID: 1960703129180388, guid: 98e6eae411ec93e4f8b52af7dca36f20, type: 2}
   towerPrefab: {fileID: 1014235170577162, guid: bda7c8aa6c8721442871200a41d2d456,
     type: 2}
-  soldierPrefab: {fileID: 1722299770770014, guid: 4e5bf7897a7af4347b438c5e54d03b18,
+  soldierPrefab: {fileID: 1723904054875732, guid: 4a1042cfb72021049933193fbcab6114,
     type: 2}
-  toxin: {fileID: 1709509116426938, guid: 53bfcf2639100cc4ea83023ecd629777, type: 2}
+  toxin: {fileID: 1797444466906864, guid: a8932a9978afaa8458dd2ca1de2a5629, type: 2}
   mainPlane: {fileID: 1927569592}
+  testPrefab: {fileID: 1238667084977640, guid: 4a1042cfb72021049933193fbcab6114, type: 2}
 --- !u!4 &1108425227
 Transform:
   m_ObjectHideFlags: 0
@@ -1391,7 +1392,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: S
+  m_Text: Soldier
 --- !u!222 &1433916863
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -30,7 +30,7 @@ public class BuildingUISoldierPlacing : IBuildingUIState
                 var soldier = Soldier.Constructor(
                     WorldComponents.SoldierPrefab,
                     9f,
-                    10f,
+                    5f,
                     hit.collider.gameObject.transform.parent.gameObject.GetComponent<Suppressor>());
 
                 return new BuildingUIPatrolPlacing(soldier, this.BuildingUi);

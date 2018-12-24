@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using UnityEditorInternal;
 
@@ -23,6 +24,10 @@ public class Soldier : MonoBehaviour
     /// </summary>
     public Wall CurrentWall { get; private set; }
 
+    public Actions Actions { get; private set; }
+
+
+
     public Patrol Patrol { get; private set; }
 
     public IEnumerator CurrentRoutine { get; private set; }
@@ -33,6 +38,9 @@ public class Soldier : MonoBehaviour
         result.Range = range;
         result.Speed = speed;
         result.transform.position = tower.Waypoint;
+        result.Actions = result.gameObject.GetComponent<Actions>();
+        result.gameObject.GetComponent<PlayerController>().SetArsenal("Rifle");
+        
         return result;
     }
 
@@ -94,11 +102,13 @@ public class Soldier : MonoBehaviour
     {
         if (watch.FirePosition.Count == 0)
         {
+            this.Actions.Stay();
             this.CurrentRoutine = null;
             yield break;
         }
 
         var firePosition = watch.FirePosition.First();
+        this.Actions.Run();
         do
         {
             foreach (var target in watch.FirePosition)
@@ -115,6 +125,9 @@ public class Soldier : MonoBehaviour
                 yield break;
             }
 
+            var newRotation = this.transform.rotation;
+            newRotation.SetLookRotation(firePosition.Value - this.transform.position, Vector3.up);
+            this.transform.rotation = newRotation;
             this.transform.position = Vector3.MoveTowards(this.transform.position, firePosition.Value, Time.deltaTime * this.Speed);
             yield return new WaitForEndOfFrame();
         }
@@ -132,6 +145,13 @@ public class Soldier : MonoBehaviour
 
     private IEnumerator Shoot(Toxin toxin, Watch watch)
     {
+        this.Actions.Attack();
+        var newRotation = this.transform.rotation;
+        var lookAt = toxin.transform.position - this.transform.position;
+        lookAt.y = 0;
+        newRotation.SetLookRotation(lookAt, Vector3.up);
+        this.transform.rotation = newRotation;
+
         while (true)
         {
             // TODO стрельбу
@@ -142,9 +162,10 @@ public class Soldier : MonoBehaviour
             }
 
             Debug.DrawLine(this.transform.position, toxin.transform.position, Color.magenta);
+            
             this.transform.position = Vector3.MoveTowards(this.transform.position, watch.FirePosition[toxin], Time.deltaTime * this.Speed);
 
-            toxin.Health = toxin.Health - (Time.deltaTime * 100);
+            toxin.Health = toxin.Health - (Time.deltaTime * 30);
 
             yield return new WaitForEndOfFrame();
         }
@@ -160,6 +181,13 @@ public class Soldier : MonoBehaviour
         for (var i = 0; i < path.Towers.Count; i++)
         {
             var nextTower = path.Towers[i];
+
+            var newRotation = this.transform.rotation;
+            newRotation.SetLookRotation(nextTower.Waypoint - this.transform.position, Vector3.up);
+            this.transform.rotation = newRotation;
+
+            this.transform.rotation.SetLookRotation(nextTower.Waypoint, Vector3.up);
+            this.Actions.Run();
             for (var currentPosition = this.transform.position;
                  Vector3.Distance(currentPosition, nextTower.Waypoint) > Vector3.kEpsilon;
                  this.transform.position = currentPosition)

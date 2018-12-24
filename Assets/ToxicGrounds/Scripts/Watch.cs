@@ -69,6 +69,7 @@ public class Watch : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("Enter");
         var toxin = other.gameObject.GetComponent<Toxin>();
         if (toxin == null)
         {
@@ -110,13 +111,12 @@ public class Watch : MonoBehaviour
         }
 
         var toxine = other.gameObject.GetComponent<Toxin>();
-        if (toxine == null)
+        if (toxine != null)
         {
-            return;
+            this.FirePosition.Remove(toxine);
+            Debug.Log("Its gone");
         }
 
-        this.FirePosition.Remove(toxine);
-        Debug.Log("Its gone");
         this.Soldier.ReTarget();
     }
 }
