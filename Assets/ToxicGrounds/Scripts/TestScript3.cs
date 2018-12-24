@@ -1,11 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 using UnityEngine;
-using UnityEngine.Serialization;
-
-using Vuforia;
 
 /// <summary>
 /// Создает три <see cref="Suppressor"/> и  три <see cref="Wall"/> между ними, образуя треугольник; добавляет <see cref="Soldier"/> и устанавливает ему <see cref="Patrol"/>, состоящий только из двух <see cref="Watch"/>, не добавляя последнюю <see cref="Wall"/>; добавляет два <see cref="Toxin"/>. Таким образом, <see cref="Soldier"/> будет переходить между <see cref="Watch"/>, которые нашли <see cref="Toxin"/> (если их двигать в редакторе).
