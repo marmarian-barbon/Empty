@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+using Vuforia;
+
 /// <summary>
 /// Создает три <see cref="Suppressor"/> и  три <see cref="Wall"/> между ними, образуя треугольник; добавляет <see cref="Soldier"/> и устанавливает ему <see cref="Patrol"/>, состоящий только из двух <see cref="Watch"/>, не добавляя последнюю <see cref="Wall"/>; добавляет два <see cref="Toxin"/>. Таким образом, <see cref="Soldier"/> будет переходить между <see cref="Watch"/>, которые нашли <see cref="Toxin"/> (если их двигать в редакторе).
 /// </summary>
@@ -46,6 +48,17 @@ public class TestScript3 : MonoBehaviour
         }
     }
 
+    private IEnumerator GenerateToxins(float timeInterval)
+    {
+        while (true)
+        {
+            var toxin = Toxin.Constructor(this.toxin, new Vector3(0f, 10f, 6f));
+            toxin.Go();
+
+            yield return new WaitForSeconds(timeInterval);
+        }
+    }
+
     private void Start()
     {
         WorldComponents.MainPlane = this.mainPlane;
@@ -53,18 +66,15 @@ public class TestScript3 : MonoBehaviour
         WorldComponents.WallPrefab = this.wallPrefab;
         WorldComponents.SoldierPrefab = this.soldierPrefab;
 
-        var tower0 = Suppressor.Constructor(new Vector3(0f, 0f, 6f), new SimpleTowerBuilder(this.towerPrefab), 2f);
-        var tower1 = Suppressor.Constructor(new Vector3(6f, 0f, -4f), new SimpleTowerBuilder(this.towerPrefab), 2f);
-        var tower2 = Suppressor.Constructor(new Vector3(-6f, 0f, -4f), new SimpleTowerBuilder(this.towerPrefab), 2f);
+        var tower0 = Suppressor.Constructor(new Vector3(-15f, 0f, 15f), new SimpleTowerBuilder(this.towerPrefab), 2f);
+        var tower1 = Suppressor.Constructor(new Vector3(15f, 0f, -15f), new SimpleTowerBuilder(this.towerPrefab), 2f);
+       
 
         var wall01 = Wall.Constructor(tower0, tower1, new SimpleWallBuilder(this.wallPrefab));
-        var wall12 = Wall.Constructor(tower1, tower2, new SimpleWallBuilder(this.wallPrefab));
-        var wall20 = Wall.Constructor(tower2, tower0, new SimpleWallBuilder(this.wallPrefab));
 
-        var soldier = Soldier.Constructor(this.soldierPrefab, 15f, 10f, tower0);
+        var soldier = Soldier.Constructor(this.soldierPrefab, 9f, 10f, tower0);
         var patrol = soldier.SetPatrol(wall01);
-        Debug.Log($"Другая стена добавлена в партулируемую территорию: {patrol.Add(wall12)}");
-        var toxin0 = Toxin.Constructor(this.toxin, new Vector3(0f, 10f, 6f));
-        var toxin1 = Toxin.Constructor(this.toxin, new Vector3(-6f, 10f, -4f));
+
+        this.StartCoroutine(this.GenerateToxins(5f));
     }
 }

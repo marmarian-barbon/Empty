@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using UnityEditorInternal;
+
 using UnityEngine;
 
 /// <summary>
@@ -107,10 +109,22 @@ public class Soldier : MonoBehaviour
                 }
             }
 
+            if (firePosition.Key == null)
+            {
+                this.CurrentRoutine = null;
+                yield break;
+            }
+
             this.transform.position = Vector3.MoveTowards(this.transform.position, firePosition.Value, Time.deltaTime * this.Speed);
             yield return new WaitForEndOfFrame();
         }
-        while (Vector3.Distance(this.transform.position, firePosition.Key.transform.position) > this.Range + firePosition.Key.Size);
+        while (firePosition.Key.gameObject != null && Vector3.Distance(this.transform.position, firePosition.Key.transform.position) > this.Range + firePosition.Key.Size);
+
+        if (firePosition.Key == null)
+        {
+            this.CurrentRoutine = null;
+            yield break;
+        }
 
         this.CurrentRoutine = this.Shoot(firePosition.Key, watch);
         yield return this.StartCoroutine(this.CurrentRoutine);
@@ -121,8 +135,17 @@ public class Soldier : MonoBehaviour
         while (true)
         {
             // TODO стрельбу
+            if (toxin == null)
+            {
+                this.CurrentRoutine = null;
+                yield break;
+            }
+
             Debug.DrawLine(this.transform.position, toxin.transform.position, Color.magenta);
             this.transform.position = Vector3.MoveTowards(this.transform.position, watch.FirePosition[toxin], Time.deltaTime * this.Speed);
+
+            toxin.Health = toxin.Health - (Time.deltaTime * 100);
+
             yield return new WaitForEndOfFrame();
         }
     }

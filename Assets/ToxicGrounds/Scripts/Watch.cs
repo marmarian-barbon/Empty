@@ -69,14 +69,15 @@ public class Watch : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        var toxine = other.gameObject.GetComponent<Toxin>();
-        if (toxine == null)
+        var toxin = other.gameObject.GetComponent<Toxin>();
+        if (toxin == null)
         {
             return;
         }
 
-        var optimalPosition = this.OptimalPosition(toxine);
-        this.FirePosition.Add(toxine, optimalPosition);
+        toxin.TriggeredBy.Add(this);
+        var optimalPosition = this.OptimalPosition(toxin);
+        this.FirePosition.Add(toxin, optimalPosition);
         this.Soldier.ReTarget();
     }
 
@@ -92,8 +93,22 @@ public class Watch : MonoBehaviour
         this.FirePosition[toxine] = optimalPosition;
     }
 
+    public void CheckTarget(Toxin target)
+    {
+        this.FirePosition.Remove(target);
+        this.Soldier.ReTarget();
+    }
+
     private void OnTriggerExit(Collider other)
     {
+        foreach (var target in this.FirePosition)
+        {
+            if (target.Key == null)
+            {
+                this.FirePosition.Remove(target);
+            }
+        }
+
         var toxine = other.gameObject.GetComponent<Toxin>();
         if (toxine == null)
         {
@@ -101,6 +116,7 @@ public class Watch : MonoBehaviour
         }
 
         this.FirePosition.Remove(toxine);
+        Debug.Log("Its gone");
         this.Soldier.ReTarget();
     }
 }

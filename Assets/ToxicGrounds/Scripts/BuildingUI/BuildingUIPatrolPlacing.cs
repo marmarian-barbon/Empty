@@ -54,6 +54,8 @@ public class BuildingUIPatrolPlacing : IBuildingUIState
                 {
                     this.patrol = this.soldier.SetPatrol(wall);
                 }
+
+                Debug.Log("Patrol expanded!");
             }
         }
 

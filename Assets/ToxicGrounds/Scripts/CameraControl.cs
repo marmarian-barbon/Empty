@@ -16,7 +16,7 @@ public class CameraControl : MonoBehaviour
         this.CameraDirectionSpeed = 0.1f;
         this.CameraAngleSpeed = 1f;
         this.MinLength = 5f;
-        this.MaxLength = 40f;
+        this.MaxLength = 60f;
 
         this.gameObject.transform.LookAt(Vector3.zero);
     }
