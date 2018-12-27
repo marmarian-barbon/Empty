@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-
-using UnityEngine;
-
-/// <summary>
+﻿/// <summary>
 /// Предоставляет возможность создания графической составляющей <see cref="Wall"/>.
 /// </summary>
 public interface IWallBuilder

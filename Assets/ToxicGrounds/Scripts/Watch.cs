@@ -40,6 +40,17 @@ public class Watch : MonoBehaviour
         return result;
     }
 
+    public void Check(Toxin toxin)
+    {
+        if (toxin.gameObject.activeSelf)
+        {
+            return;
+        }
+
+        this.FirePosition.Remove(toxin);
+        this.Soldier.ReTarget();
+    }
+
     /// <summary>
     /// Расчитывает Оптимальную позицию на <seealso cref="Wall"/> для стрельбы по <seealso cref="enemy"/>.
     /// </summary>
@@ -69,54 +80,38 @@ public class Watch : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Enter");
         var toxin = other.gameObject.GetComponent<Toxin>();
-        if (toxin == null)
+        if (!toxin.gameObject.activeSelf)
         {
             return;
         }
 
-        toxin.TriggeredBy.Add(this);
+        Debug.Log("Enter");
         var optimalPosition = this.OptimalPosition(toxin);
         this.FirePosition.Add(toxin, optimalPosition);
+        toxin.Triggered(this);
         this.Soldier.ReTarget();
     }
 
     private void OnTriggerStay(Collider other)
     {
-        var toxine = other.gameObject.GetComponent<Toxin>();
-        if (toxine == null)
+        var toxin = other.gameObject.GetComponent<Toxin>();
+        if (!toxin.gameObject.activeSelf)
         {
+            this.FirePosition.Remove(toxin);
+            this.Soldier.ReTarget();
             return;
         }
 
-        var optimalPosition = this.OptimalPosition(toxine);
-        this.FirePosition[toxine] = optimalPosition;
-    }
-
-    public void CheckTarget(Toxin target)
-    {
-        this.FirePosition.Remove(target);
-        this.Soldier.ReTarget();
+        var optimalPosition = this.OptimalPosition(toxin);
+        this.FirePosition[toxin] = optimalPosition;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        foreach (var target in this.FirePosition)
-        {
-            if (target.Key == null)
-            {
-                this.FirePosition.Remove(target);
-            }
-        }
-
-        var toxine = other.gameObject.GetComponent<Toxin>();
-        if (toxine != null)
-        {
-            this.FirePosition.Remove(toxine);
-            Debug.Log("Its gone");
-        }
-
+        var toxin = other.gameObject.GetComponent<Toxin>();
+        this.FirePosition.Remove(toxin);
+        Debug.Log("Its gone");
         this.Soldier.ReTarget();
     }
 }

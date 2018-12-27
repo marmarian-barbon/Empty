@@ -1,37 +1,34 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
 
-using Random = UnityEngine.Random;
-
 public class Toxin : MonoBehaviour
 {
-    public ICollection<Watch> TriggeredBy { get; private set; } = new List<Watch>();
+    private readonly Vector3 endPoint = new Vector3(35f, 0.5f, 44f);
 
-    private Vector3 endPoint = new Vector3(35f, 0.5f, 44f);
+    private readonly Vector3 firstPoint = new Vector3(-30f, 0.5f, -30f);
 
-    private Vector3 firstPoint = new Vector3(-30f, 0.5f, -30f);
+    private readonly ISet<Watch> triggeredBy = new HashSet<Watch>();
 
-    private IEnumerator currentCoroutine;
+    private IEnumerator currentRoutine;
 
-    public IEnumerator CurrentCoroutine
+    private double health = 100;
+
+    public IEnumerator CurrentRoutine
     {
         get
         {
-            return this.currentCoroutine;
+            return this.currentRoutine;
         }
 
         set
         {
-            this.currentCoroutine = value;
-            this.StartCoroutine(this.currentCoroutine);
+            this.currentRoutine = value;
+            this.StartCoroutine(this.currentRoutine);
         }
     }
-
-    private double health = 100;
 
     public double Health
     {
@@ -39,22 +36,36 @@ public class Toxin : MonoBehaviour
         {
             return this.health;
         }
+
         set
         {
             this.health = value;
             if (this.health <= 0)
             {
                 Debug.Log("Dead");
-                MonoBehaviour.DestroyImmediate(this.gameObject, allowDestroyingAssets: true);
-                foreach (var watch in this.TriggeredBy)
+                this.gameObject.SetActive(false);
+                MonoBehaviour.Destroy(this.gameObject);
+                foreach (var watch in this.triggeredBy)
                 {
-                    watch.CheckTarget(this);
+                    watch.Check(this);
                 }
             }
         }
     }
 
     public float Size { get; private set; }
+
+    public static Toxin Constructor(GameObject prefab, Vector3 position)
+    {
+        var result = Instantiate(prefab, position, Quaternion.identity).AddComponent<Toxin>();
+        result.Size = result.gameObject.GetComponent<SphereCollider>().radius;
+        return result;
+    }
+
+    public void Triggered(Watch watch)
+    {
+        this.triggeredBy.Add(watch);
+    }
 
     public void Go()
     {
@@ -78,16 +89,12 @@ public class Toxin : MonoBehaviour
             currentPosition = nextPosition;
         }
 
-        this.CurrentCoroutine = this.FullMove(moves);
-
+        this.CurrentRoutine = this.FullMove(moves);
     }
 
-    private IEnumerator FullMove(IList<IEnumerator> moves)
+    private IEnumerator FullMove(IEnumerable<IEnumerator> moves)
     {
-        foreach (var move in moves)
-        {
-            yield return this.StartCoroutine(move);
-        }
+        return moves.Select(this.StartCoroutine).GetEnumerator();
     }
 
     private IEnumerator Move(Vector3 to)
@@ -101,12 +108,5 @@ public class Toxin : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         while (Vector3.Distance(this.transform.position, to) > Vector3.kEpsilon);
-    }
-
-    public static Toxin Constructor(GameObject prefab, Vector3 position)
-    {
-        var result = MonoBehaviour.Instantiate(prefab, position, Quaternion.identity).AddComponent<Toxin>();
-        result.Size = result.gameObject.GetComponent<SphereCollider>().radius;
-        return result;
     }
 }

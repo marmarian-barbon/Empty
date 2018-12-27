@@ -4,15 +4,9 @@ public static class WorldComponents
 {
     public static GameObject MainPlane { get; set; }
 
-    public static string WallPrefabName { get; } = "SimpleWallPrefab";
+    public static GameObject TowerPrefab { get; set; }
 
-    public static string TowerPrefabName { get; } = "SimpleTowerPrefab";
+    public static GameObject WallPrefab { get; set; }
 
-    public static string UiBuildingCanvasPrefabName { get; } = "UIBuildingCanvas";
-
-    public static GameObject TowerPrefab;
-
-    public static GameObject WallPrefab;
-
-    public static GameObject SoldierPrefab;
+    public static GameObject SoldierPrefab { get; set; }
 }

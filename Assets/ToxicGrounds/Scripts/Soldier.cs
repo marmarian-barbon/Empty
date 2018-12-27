@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class Soldier : MonoBehaviour
 {
-    public float Speed { get; private set; }
+    private IEnumerator currentRoutine;
 
     /// <summary>
     /// Дальность стрельбы.
@@ -20,13 +20,33 @@ public class Soldier : MonoBehaviour
     /// </summary>
     public Wall CurrentWall { get; private set; }
 
-    public Actions Actions { get; private set; }
+    public IEnumerator CurrentRoutine
+    {
+        get
+        {
+            return this.currentRoutine;
+        }
 
+        private set
+        {
+            if (this.currentRoutine != null)
+            {
+                this.StopCoroutine(this.currentRoutine);
+            }
 
+            this.currentRoutine = value;
+            if (this.currentRoutine != null)
+            {
+                this.StartCoroutine(this.currentRoutine);
+            }
+        }
+    }
 
-    public Patrol Patrol { get; private set; }
+    private Actions Actions { get; set; }
 
-    public IEnumerator CurrentRoutine { get; private set; }
+    private Patrol Patrol { get; set; }
+
+    private float Speed { get; set; }
 
     public static Soldier Constructor(GameObject prefab, float range, float speed, Suppressor tower)
     {
@@ -64,15 +84,9 @@ public class Soldier : MonoBehaviour
     /// </summary>
     public void ReTarget()
     {
-        if (this.CurrentRoutine != null)
-        {
-            this.StopCoroutine(this.CurrentRoutine);
-        }
-
         var path = new Path(this.Patrol);
         Debug.Log($"Nearest target is {path.Distance} away");
         this.CurrentRoutine = this.Move(path);
-        this.StartCoroutine(this.CurrentRoutine);
     }
 
     private void TryShoot()
@@ -83,15 +97,7 @@ public class Soldier : MonoBehaviour
         }
 
         var watch = this.Patrol.WatchOf(this.CurrentWall);
-        if (watch != null)
-        {
-            this.CurrentRoutine = this.Chase(watch);
-            this.StartCoroutine(this.CurrentRoutine);
-        }
-        else
-        {
-            this.CurrentRoutine = null;
-        }
+        this.CurrentRoutine = watch != null ? this.Chase(watch) : null;
     }
 
     private IEnumerator Chase(Watch watch)
@@ -107,6 +113,18 @@ public class Soldier : MonoBehaviour
         this.Actions.Run();
         do
         {
+            if (!firePosition.Key.gameObject.activeSelf)
+            {
+                if (watch.FirePosition.Count == 0)
+                {
+                    this.Actions.Stay();
+                    this.currentRoutine = null;
+                    yield break;
+                }
+
+                firePosition = watch.FirePosition.First();
+            }
+
             foreach (var target in watch.FirePosition)
             {
                 if (Vector3.Distance(this.transform.position, target.Value) < Vector3.Distance(this.transform.position, firePosition.Value))
@@ -115,49 +133,31 @@ public class Soldier : MonoBehaviour
                 }
             }
 
-            if (firePosition.Key == null)
-            {
-                this.CurrentRoutine = null;
-                yield break;
-            }
-
             var newRotation = this.transform.rotation;
             newRotation.SetLookRotation(firePosition.Value - this.transform.position, Vector3.up);
             this.transform.rotation = newRotation;
             this.transform.position = Vector3.MoveTowards(this.transform.position, firePosition.Value, Time.deltaTime * this.Speed);
             yield return new WaitForEndOfFrame();
         }
-        while (firePosition.Key.gameObject != null && Vector3.Distance(this.transform.position, firePosition.Key.transform.position) > this.Range + firePosition.Key.Size);
-
-        if (firePosition.Key == null)
-        {
-            this.CurrentRoutine = null;
-            yield break;
-        }
+        while (Vector3.Distance(this.transform.position, firePosition.Key.transform.position) > this.Range + firePosition.Key.Size);
 
         this.CurrentRoutine = this.Shoot(firePosition.Key, watch);
-        yield return this.StartCoroutine(this.CurrentRoutine);
     }
 
     private IEnumerator Shoot(Toxin toxin, Watch watch)
     {
         this.Actions.Attack();
-        var newRotation = this.transform.rotation;
-        var lookAt = toxin.transform.position - this.transform.position;
-        lookAt.y = 0;
-        newRotation.SetLookRotation(lookAt, Vector3.up);
-        this.transform.rotation = newRotation;
-
+        
         while (true)
         {
             // TODO стрельбу
-            if (toxin == null)
-            {
-                this.CurrentRoutine = null;
-                yield break;
-            }
-
             Debug.DrawLine(this.transform.position, toxin.transform.position, Color.magenta);
+
+            var newRotation = this.transform.rotation;
+            var lookAt = toxin.transform.position - this.transform.position;
+            lookAt.y = 0;
+            newRotation.SetLookRotation(lookAt, Vector3.up);
+            this.transform.rotation = newRotation;
             
             this.transform.position = Vector3.MoveTowards(this.transform.position, watch.FirePosition[toxin], Time.deltaTime * this.Speed);
 

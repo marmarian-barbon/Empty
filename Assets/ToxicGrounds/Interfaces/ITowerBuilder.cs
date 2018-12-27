@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-/// <summary>
+﻿/// <summary>
 /// Предоставляет возможность создания графической составляющей <see cref="Suppressor"/>.
 /// </summary>
 public interface ITowerBuilder

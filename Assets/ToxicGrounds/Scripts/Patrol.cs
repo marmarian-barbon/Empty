@@ -20,6 +20,12 @@ public class Patrol
         }
     }
 
+    public ISet<Watch> Watches { get; }
+
+    public ISet<Suppressor> Towers { get; }
+
+    public Soldier Soldier { get; }
+
     public void Destroy()
     {
         foreach (var watch in Watches)
@@ -27,12 +33,6 @@ public class Patrol
             MonoBehaviour.Destroy(watch);
         }
     }
-
-    public ISet<Watch> Watches { get; }
-
-    public ISet<Suppressor> Towers { get; }
-
-    public Soldier Soldier { get; }
 
     public Watch WatchOf(Wall wall)
     {
